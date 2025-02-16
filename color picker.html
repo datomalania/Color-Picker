@@ -1,0 +1,199 @@
+<div style="background: #f8f9fa; padding: 20px; border-radius: 8px; width: 100%; font-family: Arial, sans-serif; box-sizing: border-box;">
+  <!-- ფერის პრევიუ -->
+  <div id="colorPreview" style="width: 100%; height: 100px; border: 2px solid #ced4da; margin-bottom: 20px; border-radius: 4px; background: rgb(255,0,128);"></div>
+
+  <!-- კონტროლები -->
+  <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+    <!-- RED -->
+    <div style="flex: 1; min-width: 120px;">
+      <div style="color: #dc3545; margin-bottom: 8px;">RED / წითელი</div>
+      <div style="position: relative; height: 24px;">
+        <input 
+          type="range" 
+          min="0" 
+          max="255" 
+          value="25" 
+          oninput="updateChannel('red', this.value)" 
+          class="red-slider">
+        <div id="redTrack" class="track"></div>
+      </div>
+      <input type="number" min="0" max="255" value="25" oninput="updateChannel('red', this.value)" 
+             class="number-input">
+    </div>
+
+    <!-- GREEN -->
+    <div style="flex: 1; min-width: 120px;">
+      <div style="color: #28a745; margin-bottom: 8px;">GREEN / მწვანე</div>
+      <div style="position: relative; height: 24px;">
+        <input 
+          type="range" 
+          min="0" 
+          max="255" 
+          value="25" 
+          oninput="updateChannel('green', this.value)" 
+          class="green-slider">
+        <div id="greenTrack" class="track"></div>
+      </div>
+      <input type="number" min="0" max="255" value="25" oninput="updateChannel('green', this.value)" 
+             class="number-input">
+    </div>
+
+    <!-- BLUE -->
+    <div style="flex: 1; min-width: 120px;">
+      <div style="color: #007bff; margin-bottom: 8px;">BLUE / ლურჯი</div>
+      <div style="position: relative; height: 24px;">
+        <input 
+          type="range" 
+          min="0" 
+          max="255" 
+          value="25" 
+          oninput="updateChannel('blue', this.value)" 
+          class="blue-slider">
+        <div id="blueTrack" class="track"></div>
+      </div>
+      <input type="number" min="0" max="255" value="25" oninput="updateChannel('blue', this.value)" 
+             class="number-input">
+    </div>
+  </div>
+
+  <!-- RGB & HEX -->
+  <div style="display: flex; justify-content: space-between; background: #e9ecef; padding: 12px; border-radius: 4px;">
+    <div>
+      <span style="font-weight: bold;">RGB:</span>
+      <code id="rgbOutput">RGB(25, 25, 25)</code>
+    </div>
+    <div>
+      <span style="font-weight: bold;">HEX:</span>
+      <code id="hexOutput">#191919</code>
+    </div>
+  </div>
+</div>
+
+<style>
+  .track {
+    position: absolute;
+    bottom: 4px;
+    height: 16px;
+    width: 100%;
+    border-radius: 0;
+    z-index: 1;
+    background: rgba(0,0,0,0.1);
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 24px;
+    background: transparent;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ვერტიკალური ცენტრირება */
+  .red-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 24px;
+    height: 24px;
+    background: #ff0000;
+    border: 2px solid white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    border-radius: 50%;
+    margin-top: -4px; /* (16px track - 24px thumb)/2 = -4px */
+  }
+  .green-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 24px;
+    height: 24px;
+    background: #00ff00;
+    border: 2px solid white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    border-radius: 50%;
+    margin-top: -4px;
+  }
+  .blue-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 24px;
+    height: 24px;
+    background: #0000ff;
+    border: 2px solid white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    border-radius: 50%;
+    margin-top: -4px;
+  }
+
+  /* Firefox */
+  .red-slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    background: #ff0000;
+    border: 2px solid white;
+    border-radius: 50%;
+    margin-top: -4px;
+  }
+  .green-slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    background: #00ff00;
+    border: 2px solid white;
+    border-radius: 50%;
+    margin-top: -4px;
+  }
+  .blue-slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    background: #0000ff;
+    border: 2px solid white;
+    border-radius: 50%;
+    margin-top: -4px;
+  }
+
+  .number-input {
+    width: 100%;
+    padding: 4px;
+    border: 1px solid #ced4da;
+    margin-top: 8px;
+  }
+</style>
+
+<script>
+let currentColor = { 
+  red: 25, 
+  green: 25, 
+  blue: 25 
+};
+
+function updateChannel(channel, value) {
+  value = Math.min(255, Math.max(0, parseInt(value) || 0));
+  currentColor[channel] = value;
+  
+  // ცვლილება მხოლოდ აქ - რიცხვითი ველების განახლება
+  const numberInput = document.querySelector(`input[type="number"][oninput*="${channel}"]`);
+  if(numberInput) numberInput.value = value;
+  
+  
+  // ტრეკის ფერის განახლება
+  const track = document.getElementById(`${channel}Track`);
+  track.style.background = `rgba(
+    ${channel === 'red' ? value : 0},
+    ${channel === 'green' ? value : 0},
+    ${channel === 'blue' ? value : 0},
+    0.3
+  )`;
+  
+  
+
+  // ორიგინალური ლოგიკა უცვლელი
+  document.querySelectorAll(`.${channel}-slider`).forEach(input => input.value = value);
+  document.getElementById('colorPreview').style.backgroundColor = 
+    `rgb(${currentColor.red},${currentColor.green},${currentColor.blue})`;
+  document.getElementById('rgbOutput').textContent = 
+    `RGB(${currentColor.red}, ${currentColor.green}, ${currentColor.blue})`;
+  document.getElementById('hexOutput').textContent = 
+    `#${currentColor.red.toString(16).padStart(2,'0')}${currentColor.green.toString(16).padStart(2,'0')}${currentColor.blue.toString(16).padStart(2,'0')}`.toUpperCase();
+}
+
+// ორიგინალური ინიციალიზაცია
+document.querySelectorAll('.track').forEach(track => {
+  track.style.background = 'rgba(25,25,25,0.3)';
+});
+</script>
